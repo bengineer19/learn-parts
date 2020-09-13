@@ -10,10 +10,6 @@ from googleapiclient.http import MediaIoBaseDownload
 from exceptions import InvalidInfoException
 
 service_account_info = json.loads(os.getenv('GDRIVE_AUTH'))
-# SCOPES = [
-#     'https://www.googleapis.com/auth/drive.metadata.readonly',
-#     'https://www.googleapis.com/auth/drive.file'
-# ]
 SCOPES = [
     'https://www.googleapis.com/auth/drive'
 ]
@@ -21,11 +17,10 @@ SCOPES = [
 creds = service_account.Credentials.from_service_account_info(
         service_account_info, scopes=SCOPES)
 
-service = build('drive', 'v3', credentials=creds)
-
 
 def list_files_in_folder(folder_id):
     ''' Returns generator of (file_name, file_id) '''
+    service = build('drive', 'v3', credentials=creds)
     page_token = None
     while True:
         query = f"'{folder_id}' in parents"
@@ -42,6 +37,7 @@ def list_files_in_folder(folder_id):
 
 
 def get_file(file_id):
+    service = build('drive', 'v3', credentials=creds)
     request = service.files().get_media(fileId=file_id)
     fh = io.BytesIO()
     downloader = MediaIoBaseDownload(fh, request)
