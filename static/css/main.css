@@ -2,6 +2,21 @@
     color: #457b9d;
 }
 
+.btn-play {
+    background-color: #1d3557;
+    color:white;
+}
+
+.btn-pause, .btn-stop, .btn-rewind {
+    background-color: #457b9d;
+    color: white;
+}
+
+.navbar-inverse {
+    background-color: #1d3557;
+    border-radius: 0;
+}
+
 .playlist {
     margin: 2em 0;
 }
