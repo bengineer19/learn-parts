@@ -41,19 +41,7 @@ def list_files_in_folder(folder_id):
             break
 
 
-
-def get_song(folder_id):
-    # Load credentials from json string in GDRIVE_AUTH env var
-    files = list(list_files_in_folder(folder_id))
-    if not 'info.json' in [f_name for f_name, f_id in files]:
-        raise InvalidInfoException("No info file found")
-
-
-    return {}
-
-
 def get_file(file_id):
-    # file_id = '0BwwA4oUTeiV1UVNwOHItT0xfa2M'
     request = service.files().get_media(fileId=file_id)
     fh = io.BytesIO()
     downloader = MediaIoBaseDownload(fh, request)
@@ -64,3 +52,35 @@ def get_file(file_id):
 
     fh.seek(0)
     return fh
+
+
+def parse_info_file(info_file_id):
+    info_file = get_file(info_file_id)
+    info_file_text = io.TextIOWrapper(info_file, encoding='utf-8')
+    return json.loads(info_file_text.read())
+
+
+def parse_tracks(files):
+    for f_name, f_id in files:
+        if f_name.endswith('.mp3'):
+            yield {
+                'name': f_name,
+                'src': f'/audio/{f_id}'
+            }
+
+
+def get_song(folder_id):
+    # Load credentials from json string in GDRIVE_AUTH env var
+    files = list(list_files_in_folder(folder_id))
+    info_id = next((f_id for f_name, f_id in files if f_name == 'info.json'))
+    if not info_id:
+        raise InvalidInfoException("No info file found")
+
+    info = parse_info_file(info_id)
+    tracks = list(parse_tracks(files))
+
+    return {
+        'tracks': tracks,
+        'title': info['title'],
+        'markers': info['markers']
+    }
