@@ -28,6 +28,7 @@ def list_files_in_folder(folder_id):
                                         spaces='drive',
                                         fields='nextPageToken, files(id, name)',
                                         pageToken=page_token).execute()
+
         for file in response.get('files', []):
             # Process change
             yield (file.get('name'), file.get('id'))
@@ -50,10 +51,10 @@ def get_file(file_id):
     return fh
 
 
-def parse_info_file(info_file_id):
-    info_file = get_file(info_file_id)
-    info_file_text = io.TextIOWrapper(info_file, encoding='utf-8')
-    return json.loads(info_file_text.read())
+def parse_markers_file(markers_file_id):
+    markers_file = get_file(markers_file_id)
+    markers_file_text = io.TextIOWrapper(markers_file, encoding='utf-8')
+    return json.loads(markers_file_text.read())
 
 
 def parse_tracks(files):
@@ -66,17 +67,19 @@ def parse_tracks(files):
 
 
 def get_song(folder_id):
-    # Load credentials from json string in GDRIVE_AUTH env var
-    files = list(list_files_in_folder(folder_id))
-    info_id = next((f_id for f_name, f_id in files if f_name == 'info.json'))
-    if not info_id:
-        raise InvalidInfoException("No info file found")
+    service = build('drive', 'v3', credentials=creds)
+    folder = service.files().get(fileId=folder_id).execute()
 
-    info = parse_info_file(info_id)
+    files = list(list_files_in_folder(folder_id))
     tracks = list(parse_tracks(files))
+
+    markers = None
+    markers_id = next((f_id for f_name, f_id in files if f_name == 'markers.json'))
+    if markers_id:
+        markers = parse_markers_file(markers_id)
 
     return {
         'tracks': tracks,
-        'title': info['title'],
-        'markers': info['markers']
+        'title': folder['name'],
+        'markers': markers
     }
