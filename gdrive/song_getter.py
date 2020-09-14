@@ -73,13 +73,13 @@ def get_song(folder_id):
     files = list(list_files_in_folder(folder_id))
     tracks = list(parse_tracks(files))
 
-    markers = None
-    markers_id = next((f_id for f_name, f_id in files if f_name == 'markers.json'))
-    if markers_id:
-        markers = parse_markers_file(markers_id)
-
-    return {
+    song =  {
         'tracks': tracks,
-        'title': folder['name'],
-        'markers': markers
+        'title': folder['name']
     }
+
+    if 'markers.json' in [f_name for f_id, f_name in files]:
+        markers_id = next((f_id for f_name, f_id in files if f_name == 'markers.json'))
+        song['markers'] = parse_markers_file(markers_id)
+
+    return song
