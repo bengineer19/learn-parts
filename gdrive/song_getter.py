@@ -83,3 +83,22 @@ def get_song(folder_id):
         song['markers'] = parse_markers_file(markers_id)
 
     return song
+
+
+def get_show(folder_id):
+    service = build('drive', 'v3', credentials=creds)
+    folder = service.files().get(fileId=folder_id).execute()
+
+    songs = []
+
+    files = list(list_files_in_folder(folder_id))
+    for name, folder_id in files:
+        songs.append({
+            'name': name,
+            'folder_id': folder_id
+        })
+
+    return {
+        'songs': songs,
+        'title': folder['name']
+    }

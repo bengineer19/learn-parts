@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 # Load env vars before any import which need them to set up 
 load_dotenv(os.path.join(os.getcwd(), '.env'))
 
-from gdrive import get_song, get_file
+from gdrive import get_song, get_file, get_show
 
 
 app = Flask(__name__)
@@ -20,7 +20,13 @@ def home():
 @app.route('/song/<folder_id>')
 def song_page(folder_id):
     song = get_song(folder_id)
-    return render_template("song.html", song=song)
+    return render_template("song.html", song=song, title=song['title'])
+
+
+@app.route('/show/<folder_id>')
+def show_page(folder_id):
+    show = get_show(folder_id)
+    return render_template("show.html", show=show, title='Show listing')
 
 
 @app.route('/audio/<file_id>')
