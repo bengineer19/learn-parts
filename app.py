@@ -14,7 +14,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return 'Homepage'
+    return 'Get in touch with me (Ben James - bwj23@cam.ac.uk) for usage instructions, to give feedback, or anything at all!'
 
 
 @app.route('/song/<folder_id>')
